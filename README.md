@@ -1,4 +1,4 @@
-# 🔍 Business Blind Spot Detector
+# Business Blind Spot Detector
 
 **An AI-powered customer-intelligence and business-gap analysis platform.**
 It compares *what a company communicates* (website copy, ads, posts, announcements) with *what customers actually say and expect* (reviews, comments, complaints), finds the mismatches, scores them, tracks whether they are getting worse, and recommends what to do.
