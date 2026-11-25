@@ -37,9 +37,11 @@ export function Card({ children, className = "" }: { children: ReactNode; classN
 
 export function KpiRow({ items }: { items: { label: string; value: ReactNode; sub?: string; accent?: string }[] }) {
   return (
-    <div className="mb-2 grid gap-px overflow-hidden rounded-lg border border-slate-200 bg-slate-200 shadow-sm" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))" }}>
+    <div className="mb-2 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+     {/* -mr-px/-mb-px hide the outer cell borders, so any empty slot in the last row stays white */}
+     <div className="-mb-px -mr-px grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))" }}>
       {items.map((k) => (
-        <div key={k.label} className="bg-white px-4 py-4">
+        <div key={k.label} className="border-b border-r border-slate-200 px-4 py-4">
           <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
             {k.accent && <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: k.accent }} />}
             {k.label}
@@ -48,6 +50,7 @@ export function KpiRow({ items }: { items: { label: string; value: ReactNode; su
           {k.sub && <div className="mt-0.5 text-xs text-slate-500">{k.sub}</div>}
         </div>
       ))}
+     </div>
     </div>
   );
 }

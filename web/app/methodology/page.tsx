@@ -18,6 +18,7 @@ export default function Methodology() {
           <li><b>Preprocess</b>: HTML/URL removal, whitespace and unicode normalisation, spam filter, duplicate/empty removal, language check. The original text is always kept; negations, punctuation and emojis are preserved.</li>
           <li><b>Sentiment</b>: VADER baseline (+ optional Hugging Face transformer). Aspect-based: each review is split into clauses, scored separately and linked to a topic.</li>
           <li><b>Topics</b>: BERTopic (SBERT → UMAP → HDBSCAN → c-TF-IDF) discovers topics from <i>your</i> data; KMeans fallback for small datasets.</li>
+          <li><b>Readable topic names</b>: the dashboard shows a short name (e.g. “Refunds”) chosen from the topic&apos;s own keywords with a small dictionary of common customer-experience themes. If no theme matches clearly, the keywords themselves are shown. The original keywords always appear under the name.</li>
           <li><b>Needs &amp; expectations</b>: cue-pattern detection of explicit requests/expectations/unmet needs + SBERT clustering of complaints; implied expectations are labelled <i>inferred</i>.</li>
           <li><b>Company communication</b>: separate clustering into themes; share % = messages in theme ÷ all messages.</li>
           <li><b>Semantic gap</b>: customer topics and company messages are compared with SBERT cosine similarity (no keyword matching alone).</li>

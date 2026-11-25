@@ -1,5 +1,7 @@
 "use client";
 
+import { TopicName } from "@/components/TopicName";
+import { humanizeRescore } from "@/lib/naming";
 import { Check, Download, Eye, Save } from "lucide-react";
 import { useState } from "react";
 import { Gate } from "@/components/Gate";
@@ -31,10 +33,25 @@ function Content({ bundle, spots }: { bundle: Bundle; spots: BlindSpot[] }) {
       <KpiRow items={SEVERITY_BANDS.map(([s, range]) => ({ label: s, value: sev(s), sub: `score ${range}`, accent: SEVERITY_COLORS[s] }))} />
 
       <Section title="Ranked blind spots" right={<Btn onClick={() => downloadCsv("blind_spots.csv", spots.map((s) => ({ rank: s.rank, topic: s.topic_label, type: CLASS_LABELS[s.classification], importance: s.importance.toFixed(1), coverage: s.coverage_norm.toFixed(1), gap: s.gap.toFixed(1), trend: s.trend_used.toFixed(1), trend_available: s.trend_available, score: s.score, severity: s.severity })))}><Download size={15} />Export CSV</Btn>}>
-        <Table head={["Rank", "Topic", "Type", "Importance", "Coverage", "Gap", "Trend", "Score", "Severity"]}>
+        {/* Phones: one card per blind spot (a 9-column table is unreadable at this width) */}
+        <div className="space-y-2 md:hidden">
+          {spots.map((s) => (
+            <button key={s.topic_id} onClick={() => setPick(s.topic_id)} className={`block w-full rounded-lg border bg-white p-3.5 text-left shadow-sm ${r.topic_id === s.topic_id ? "border-slate-400" : "border-slate-200"}`}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex min-w-0 gap-2"><span className="text-sm text-slate-400">{s.rank}</span><TopicName id={s.topic_id} name={s.topic_label} /></div>
+                <div className="shrink-0 text-right"><div className="text-lg font-semibold tabular-nums" style={{ color: SEVERITY_COLORS[s.severity] }}>{s.score.toFixed(1)}</div><SeverityBadge s={s.severity} /></div>
+              </div>
+              <div className="mt-2"><ClassBadge c={s.classification} /></div>
+              <div className="mt-2.5 grid grid-cols-3 gap-3 text-xs text-slate-500">
+                <div>Importance<Bar value={s.importance} /></div><div>Coverage<Bar value={s.coverage_norm} color="#F59E0B" /></div><div>Gap<Bar value={s.gap} color="#F97316" /></div>
+              </div>
+            </button>
+          ))}
+        </div>
+        <Table className="hidden md:block" head={["Rank", "Topic", "Type", "Importance", "Coverage", "Gap", "Trend", "Score", "Severity"]}>
           {spots.map((s) => (
             <tr key={s.topic_id} onClick={() => setPick(s.topic_id)} className={`cursor-pointer hover:bg-slate-50 ${r.topic_id === s.topic_id ? "bg-slate-100/70" : ""}`}>
-              <Td>{s.rank}</Td><Td className="font-medium">{s.topic_label}</Td><Td><ClassBadge c={s.classification} /></Td>
+              <Td>{s.rank}</Td><Td><TopicName id={s.topic_id} name={s.topic_label} /></Td><Td><ClassBadge c={s.classification} /></Td>
               <Td><Bar value={s.importance} /></Td><Td><Bar value={s.coverage_norm} color="#F59E0B" /></Td><Td><Bar value={s.gap} color="#F97316" /></Td>
               <Td className="whitespace-nowrap tabular-nums">{s.trend_used.toFixed(0)}{s.trend_available ? "" : " (neutral)"}</Td>
               <Td><Bar value={s.score} color={SEVERITY_COLORS[s.severity]} label={s.score.toFixed(1)} /></Td><Td><SeverityBadge s={s.severity} /></Td>
@@ -99,13 +116,14 @@ function ScoringPanel({ sessionId, current, spots, onApplied }: { sessionId: num
   const [preview, setPreview] = useState<RescoreResult | null>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const { bundle } = useApp();
 
   async function run(kind: "preview" | "apply" | "default") {
     setBusy(true); setMsg(null);
     try {
       if (kind === "default") { await api.saveScoringConfig(cfg); setMsg({ ok: true, text: "Saved as the default for future analyses." }); }
       else {
-        const res = await api.rescore(sessionId, cfg, kind === "apply");
+        const res = humanizeRescore(await api.rescore(sessionId, cfg, kind === "apply"), bundle);
         if (kind === "preview") setPreview(res);
         else { setPreview(null); await onApplied(); setMsg({ ok: true, text: "Scores updated for this analysis." }); }
       }

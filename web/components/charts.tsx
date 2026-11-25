@@ -21,7 +21,9 @@ export function sentColor(v: number): string {
 function Box({ h = 320, children }: { h?: number; children: React.ReactElement }) {
   return <div style={{ width: "100%", height: h }}><ResponsiveContainer width="100%" height="100%">{children}</ResponsiveContainer></div>;
 }
-const tipStyle = { borderRadius: 10, border: "1px solid #E2E8F0", fontSize: 12 };
+const tipStyle = { borderRadius: 8, border: "1px solid #E2E8F0", fontSize: 12, boxShadow: "0 4px 12px rgba(15,23,42,.08)" };
+/** Neutral, small legend text on every chart (Recharts colours it like the series by default). */
+const LEG = { iconSize: 10, wrapperStyle: { fontSize: 12 }, formatter: (v: string) => <span style={{ color: "#475569" }}>{v}</span> };
 
 export function SentimentDonut({ rows }: { rows: CustomerRow[] }) {
   const data = ["positive", "neutral", "negative"].map((l) => ({ name: l[0].toUpperCase() + l.slice(1), key: l, value: rows.filter((r) => r.label === l).length }));
@@ -34,7 +36,7 @@ export function SentimentDonut({ rows }: { rows: CustomerRow[] }) {
             {data.map((d) => <Cell key={d.key} fill={SENT_COLORS[d.key]} />)}
           </Pie>
           <Tooltip contentStyle={tipStyle} />
-          <Legend verticalAlign="top" height={30} />
+          <Legend {...LEG} verticalAlign="top" height={30} />
         </PieChart>
       </Box>
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pt-6">
@@ -54,7 +56,7 @@ export function SentimentHistogram({ rows }: { rows: CustomerRow[] }) {
         <XAxis dataKey="x" {...AX} />
         <YAxis {...AX} allowDecimals={false} />
         <Tooltip contentStyle={tipStyle} />
-        <Legend verticalAlign="top" height={30} />
+        <Legend {...LEG} verticalAlign="top" height={30} />
         <Bar dataKey="negative" stackId="a" fill={SENT_COLORS.negative} />
         <Bar dataKey="neutral" stackId="a" fill={SENT_COLORS.neutral} />
         <Bar dataKey="positive" stackId="a" fill={SENT_COLORS.positive} />
@@ -90,7 +92,7 @@ export function TopicStack({ topics }: { topics: Topic[] }) {
         <XAxis type="number" domain={[0, 100]} unit="%" {...AX} />
         <YAxis type="category" dataKey="name" width={170} {...AX} />
         <Tooltip contentStyle={tipStyle} formatter={(v) => `${v}%`} />
-        <Legend verticalAlign="top" height={30} />
+        <Legend {...LEG} verticalAlign="top" height={30} />
         <Bar dataKey="Negative" stackId="s" fill={SENT_COLORS.negative} />
         <Bar dataKey="Neutral" stackId="s" fill={SENT_COLORS.neutral} />
         <Bar dataKey="Positive" stackId="s" fill={SENT_COLORS.positive} />
@@ -125,7 +127,7 @@ export function ImportanceCoverage({ spots }: { spots: BlindSpot[] }) {
         <XAxis type="number" domain={[0, 100]} {...AX} />
         <YAxis type="category" dataKey="name" width={170} {...AX} />
         <Tooltip contentStyle={tipStyle} />
-        <Legend verticalAlign="top" height={30} />
+        <Legend {...LEG} verticalAlign="top" height={30} />
         <Bar dataKey="Customer importance" fill={COLORS.primary} radius={[0, 5, 5, 0]} />
         <Bar dataKey="Company coverage" fill="#F59E0B" radius={[0, 5, 5, 0]} />
       </BarChart>
@@ -239,7 +241,7 @@ export function TopicLines({ series, labels, ids, metric }: { series: SeriesRow[
         <XAxis dataKey="period" {...AX} />
         <YAxis {...AX} />
         <Tooltip contentStyle={tipStyle} />
-        <Legend verticalAlign="top" height={32} />
+        <Legend {...LEG} verticalAlign="top" height={32} />
         {ids.map((id, i) => <Line key={id} name={short(labels[id] ?? String(id), 28)} type="monotone" dataKey={String(id)} stroke={PALETTE[i % PALETTE.length]} strokeWidth={2.2} dot={{ r: 3 }} connectNulls />)}
       </LineChart>
     </Box>
@@ -256,7 +258,7 @@ export function SentimentTrend({ overall }: { overall: OverallRow[] }) {
         <YAxis domain={[-1, 1]} {...AX} />
         <ReferenceLine y={0} stroke="#CBD5E1" />
         <Tooltip contentStyle={tipStyle} formatter={(v) => (v === null ? "—" : Number(v).toFixed(2))} />
-        <Legend verticalAlign="top" height={30} />
+        <Legend {...LEG} verticalAlign="top" height={30} />
         <Line name="Avg sentiment" dataKey="avg" stroke="#94A3B8" strokeWidth={0} dot={{ r: 3, fill: "#94A3B8" }} />
         <Line name="3-period moving avg" dataKey="ma" stroke={COLORS.primary} strokeWidth={3} dot={false} />
       </LineChart>

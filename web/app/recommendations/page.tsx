@@ -1,5 +1,6 @@
 "use client";
 
+import { TopicName } from "@/components/TopicName";
 import { Cog, Download, Headphones, Megaphone, Wrench, type LucideIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Gate } from "@/components/Gate";
@@ -46,7 +47,7 @@ function Content({ recs, llm }: { recs: Recommendation[]; llm: boolean }) {
             {g.map((r, i) => (
               <div key={i}>
                 <Card className="mb-2">
-                  <div className="flex flex-wrap items-center justify-between gap-2"><h4 className="font-semibold">{r.topic_label}</h4><div className="flex items-center"><PriorityBadge p={r.priority} /><SeverityBadge s={r.severity} />{r.classification && <ClassBadge c={r.classification} />}<b className="text-sm">Score {r.blind_spot_score.toFixed(1)}</b></div></div>
+                  <div className="flex flex-wrap items-center justify-between gap-2"><h4><TopicName id={r.topic_id} name={r.topic_label} /></h4><div className="flex flex-wrap items-center gap-y-1"><PriorityBadge p={r.priority} /><SeverityBadge s={r.severity} />{r.classification && <ClassBadge c={r.classification} />}<b className="whitespace-nowrap text-sm">Score {r.blind_spot_score.toFixed(1)}</b></div></div>
                   <p className="mt-2 text-sm text-slate-700"><b>Identified problem.</b> {r.problem}</p>
                   <p className="mt-1.5 text-sm text-slate-700"><b>Suggested action.</b> {r.suggested_action}</p>
                   <p className="mt-1.5 text-sm text-slate-700"><b>Expected business impact.</b> {r.expected_impact}</p>

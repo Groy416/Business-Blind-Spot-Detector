@@ -1,6 +1,8 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Lightbulb, Megaphone, Target, TrendingUp } from "lucide-react";
+import type { BlindSpot, Emerging, Recommendation } from "@/lib/types";
 import { Gate } from "@/components/Gate";
 import { ClassBadge, Card, KpiRow, Meter, Note, PageHeader, Section, SeverityBadge, Expander } from "@/components/ui";
 import { SentimentDonut, TopicBar } from "@/components/charts";
@@ -25,6 +27,7 @@ export default function Overview() {
           const top = [...view.blindSpots].sort((a, b) => b.score - a.score).slice(0, 5);
           return (
             <>
+              <Headline flagged={flagged} spots={view.blindSpots} emerging={emerging} recs={view.recs} />
               <KpiRow items={[
                 { label: "Conversations analysed", value: view.customer.length.toLocaleString(), sub: `of ${bundle.overview.total_conversations.toLocaleString()} total`, accent: COLORS.primary },
                 { label: "Topics detected", value: view.topics.length, sub: `${bundle.meta.topic_backend.toUpperCase()} discovery`, accent: "#0EA5E9" },
@@ -76,5 +79,77 @@ export default function Overview() {
         }}
       </Gate>
     </>
+  );
+}
+
+const HEADLINE: Record<string, string> = {
+  genuine_blind_spot: "is your biggest blind spot",
+  unmet_operational_need: "is your biggest unmet customer need",
+  negative_experience: "is your biggest promise-versus-reality gap",
+  communication_gap: "is your biggest communication gap",
+};
+const PRIORITY_ORDER = (p: string) => Number(p.replace(/\D/g, "").slice(0, 1) || 9);
+const firstSentence = (t: string) => { const m = t.match(/^.*?[.!?](\s|$)/); return (m ? m[0] : t).trim(); };
+
+/** The one-sentence story of the analysis, built only from computed values (no invented numbers). */
+function Headline({ flagged, spots, emerging, recs }: { flagged: BlindSpot[]; spots: BlindSpot[]; emerging: Emerging[]; recs: Recommendation[] }) {
+  const top = [...flagged].sort((a, b) => b.score - a.score)[0];
+  const overPromoted = spots.filter((s) => s.classification === "misplaced_emphasis").sort((a, b) => b.coverage_norm - a.coverage_norm)[0];
+  const growing = emerging[0];
+  const action = [...recs].sort((a, b) => PRIORITY_ORDER(a.priority) - PRIORITY_ORDER(b.priority) || b.blind_spot_score - a.blind_spot_score)[0];
+  const rising = top && ["increasing", "emerging"].includes(top.trend_status ?? "");
+
+  return (
+    <div className="mb-6 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div className="flex flex-col gap-5 p-5 md:flex-row md:items-start md:justify-between md:p-6">
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-slate-500"><Target size={14} />Key finding</div>
+          {top ? (
+            <>
+              <h2 className="mt-2 text-xl font-semibold leading-snug text-slate-900 md:text-2xl">
+                <span className="text-red-700">{top.topic_label}</span> {HEADLINE[top.classification] ?? "needs the most attention"}
+              </h2>
+              <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-600">
+                {top.negative_pct.toFixed(0)}% of {top.mentions} customer statements about it are negative, from {top.unique_customers} different customers,
+                yet it receives only {(top.coverage_share * 100).toFixed(0)}% of the company&apos;s messaging (coverage index {top.coverage_norm.toFixed(0)}/100)
+                {rising ? " — and conversation about it is growing." : "."}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                <Link href="/blind-spots" className="inline-flex items-center gap-1 font-medium text-slate-900 hover:underline">See the evidence <ArrowRight size={14} /></Link>
+                <Link href="/recommendations" className="inline-flex items-center gap-1 font-medium text-slate-500 hover:text-slate-900 hover:underline">What to do about it <ArrowRight size={14} /></Link>
+              </div>
+            </>
+          ) : (
+            <>
+              <h2 className="mt-2 text-xl font-semibold text-slate-900">No major blind spots for the current filters</h2>
+              <p className="mt-2 text-sm text-slate-600">Customer concerns and company communication are reasonably balanced, or nothing scored above the threshold.</p>
+            </>
+          )}
+        </div>
+        {top && (
+          <div className="shrink-0 rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-center md:min-w-36">
+            <div className="text-xs font-medium text-slate-500">Blind Spot Score</div>
+            <div className="text-3xl font-semibold tabular-nums" style={{ color: SEVERITY_COLORS[top.severity] }}>{top.score.toFixed(1)}</div>
+            <div className="mt-1"><SeverityBadge s={top.severity} /></div>
+          </div>
+        )}
+      </div>
+      <div className="grid divide-y divide-slate-200 border-t border-slate-200 bg-slate-50/60 md:grid-cols-3 md:divide-x md:divide-y-0">
+        <Finding icon={<TrendingUp size={15} />} label="Growing fastest" value={growing?.topic_label} detail={growing ? `Status: ${growing.status}` : "No topic is growing significantly"} />
+        <Finding icon={<Megaphone size={15} />} label="Most over-promoted" value={overPromoted?.topic_label}
+          detail={overPromoted ? `Coverage ${overPromoted.coverage_norm.toFixed(0)}/100 vs customer importance ${overPromoted.importance.toFixed(0)}/100` : "No misplaced emphasis detected"} />
+        <Finding icon={<Lightbulb size={15} />} label={action ? `Top action · ${action.priority}` : "Top action"} value={action?.topic_label} detail={action ? firstSentence(action.suggested_action) : "No recommendations"} />
+      </div>
+    </div>
+  );
+}
+
+function Finding({ icon, label, value, detail }: { icon: React.ReactNode; label: string; value?: string; detail: string }) {
+  return (
+    <div className="px-5 py-3.5">
+      <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">{icon}{label}</div>
+      <div className="mt-1 text-sm font-semibold text-slate-900">{value ?? "—"}</div>
+      <div className="mt-0.5 line-clamp-2 text-xs text-slate-500">{detail}</div>
+    </div>
   );
 }

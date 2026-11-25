@@ -1,5 +1,6 @@
 "use client";
 
+import { TopicName } from "@/components/TopicName";
 import { TrendingUp } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Gate } from "@/components/Gate";
@@ -84,7 +85,7 @@ function Content({ bundle, view }: { bundle: Bundle; view: View }) {
         <Table head={["Topic", "Status", "Trend score", "Recent n", "History n", "Recent share %", "History share %", "Volume Δ%", "p-value", "Neg. Δ pts", "Sentiment slope/wk"]}>
           {[...summ].sort((a, b) => (b.trend_score ?? -1) - (a.trend_score ?? -1)).map((s) => (
             <tr key={s.topic_id}>
-              <Td className="font-medium">{s.topic_label}</Td><Td>{s.status}</Td><Td className="tabular-nums">{s.trend_score === null ? "—" : s.trend_score.toFixed(0)}</Td>
+              <Td><TopicName id={s.topic_id} name={s.topic_label} /></Td><Td>{s.status}</Td><Td className="tabular-nums">{s.trend_score === null ? "—" : s.trend_score.toFixed(0)}</Td>
               <Td>{s.recent_n}</Td><Td>{s.history_n}</Td><Td className="tabular-nums">{s.recent_share_pct.toFixed(1)}</Td><Td className="tabular-nums">{s.history_share_pct.toFixed(1)}</Td>
               <Td className="tabular-nums">{s.volume_change_pct === null ? "—" : s.volume_change_pct.toFixed(0)}</Td><Td className="tabular-nums">{s.volume_p_value.toFixed(3)}</Td>
               <Td className="tabular-nums">{s.negative_delta_pct.toFixed(1)}</Td><Td className="tabular-nums">{s.sentiment_slope_per_week === null ? "—" : s.sentiment_slope_per_week.toFixed(3)}</Td>

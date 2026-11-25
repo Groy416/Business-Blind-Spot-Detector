@@ -1,5 +1,6 @@
 "use client";
 
+import { TopicName } from "@/components/TopicName";
 import { Download } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Gate } from "@/components/Gate";
@@ -87,7 +88,7 @@ function TopicsTab({ bundle, view }: { bundle: Bundle; view: View }) {
         <Table head={["Topic", "Statements", "Conversations", "Customers", "Avg sentiment", "% negative", "% positive", "Importance", "Volume change"]}>
           {topics.map((t) => (
             <tr key={t.topic_id} onClick={() => setSel(t.topic_id === sel ? null : t.topic_id)} className={`cursor-pointer hover:bg-slate-50 ${sel === t.topic_id ? "bg-slate-100/70" : ""}`}>
-              <Td className="font-medium">{t.label}</Td><Td>{t.mentions}</Td><Td>{t.conversations}</Td><Td>{t.unique_customers}</Td>
+              <Td><TopicName id={t.topic_id} name={t.label} /></Td><Td>{t.mentions}</Td><Td>{t.conversations}</Td><Td>{t.unique_customers}</Td>
               <Td className="tabular-nums">{t.avg_sentiment.toFixed(2)}</Td><Td><Bar value={t.negative_pct} color={COLORS.neg} label={`${t.negative_pct.toFixed(0)}%`} /></Td>
               <Td className="tabular-nums">{t.positive_pct.toFixed(0)}%</Td><Td><Bar value={t.importance} /></Td>
               <Td className="tabular-nums">{t.volume_change_pct === null ? "new/NA" : `${t.volume_change_pct > 0 ? "+" : ""}${t.volume_change_pct.toFixed(0)}%`}</Td>
