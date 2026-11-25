@@ -284,7 +284,7 @@ export function NegativeHeatmap({ series, labels }: { series: SeriesRow[]; label
   const ids = Array.from(new Set(series.map((s) => s.topic_id)));
   const max = Math.max(1, ...series.map((s) => s.neg_count));
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white p-3">
+    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white p-3">
       <table className="text-xs">
         <thead>
           <tr><th className="pr-3" />{periods.map((p) => <th key={p} className="px-0.5 pb-1 font-normal text-slate-500">{p.slice(5, 10)}</th>)}</tr>

@@ -1,5 +1,6 @@
 "use client";
 
+import { Check, Download, Eye, Save } from "lucide-react";
 import { useState } from "react";
 import { Gate } from "@/components/Gate";
 import { ComponentBars, GapScatter, ImportanceCoverage, ScoreBar } from "@/components/charts";
@@ -29,10 +30,10 @@ function Content({ bundle, spots }: { bundle: Bundle; spots: BlindSpot[] }) {
     <>
       <KpiRow items={SEVERITY_BANDS.map(([s, range]) => ({ label: s, value: sev(s), sub: `score ${range}`, accent: SEVERITY_COLORS[s] }))} />
 
-      <Section title="Ranked blind spots" right={<Btn onClick={() => downloadCsv("blind_spots.csv", spots.map((s) => ({ rank: s.rank, topic: s.topic_label, type: CLASS_LABELS[s.classification], importance: s.importance.toFixed(1), coverage: s.coverage_norm.toFixed(1), gap: s.gap.toFixed(1), trend: s.trend_used.toFixed(1), trend_available: s.trend_available, score: s.score, severity: s.severity })))}>⬇ CSV</Btn>}>
+      <Section title="Ranked blind spots" right={<Btn onClick={() => downloadCsv("blind_spots.csv", spots.map((s) => ({ rank: s.rank, topic: s.topic_label, type: CLASS_LABELS[s.classification], importance: s.importance.toFixed(1), coverage: s.coverage_norm.toFixed(1), gap: s.gap.toFixed(1), trend: s.trend_used.toFixed(1), trend_available: s.trend_available, score: s.score, severity: s.severity })))}><Download size={15} />Export CSV</Btn>}>
         <Table head={["Rank", "Topic", "Type", "Importance", "Coverage", "Gap", "Trend", "Score", "Severity"]}>
           {spots.map((s) => (
-            <tr key={s.topic_id} onClick={() => setPick(s.topic_id)} className={`cursor-pointer hover:bg-indigo-50/50 ${r.topic_id === s.topic_id ? "bg-indigo-50" : ""}`}>
+            <tr key={s.topic_id} onClick={() => setPick(s.topic_id)} className={`cursor-pointer hover:bg-slate-50 ${r.topic_id === s.topic_id ? "bg-slate-100/70" : ""}`}>
               <Td>{s.rank}</Td><Td className="font-medium">{s.topic_label}</Td><Td><ClassBadge c={s.classification} /></Td>
               <Td><Bar value={s.importance} /></Td><Td><Bar value={s.coverage_norm} color="#F59E0B" /></Td><Td><Bar value={s.gap} color="#F97316" /></Td>
               <Td className="whitespace-nowrap tabular-nums">{s.trend_used.toFixed(0)}{s.trend_available ? "" : " (neutral)"}</Td>
@@ -49,7 +50,7 @@ function Content({ bundle, spots }: { bundle: Bundle; spots: BlindSpot[] }) {
       <Section title="Blind Spot Score" subtitle="Dotted lines mark severity bands (20 / 40 / 60 / 80)"><ScoreBar spots={spots} /></Section>
 
       <Section title="Inspect a blind spot" subtitle="Evidence behind the score">
-        <select value={r.topic_id} onChange={(e) => setPick(Number(e.target.value))} className="mb-3 w-full max-w-xl rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm">
+        <select value={r.topic_id} onChange={(e) => setPick(Number(e.target.value))} className="mb-3 w-full max-w-xl rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
           {spots.map((s) => <option key={s.topic_id} value={s.topic_id}>#{s.rank} · {s.topic_label}</option>)}
         </select>
         <div className="mb-1 flex flex-wrap items-center"><ClassBadge c={r.classification} /><SeverityBadge s={r.severity} /><b className="ml-1">{r.topic_label}</b><span className="ml-2 text-slate-600">— score <b>{r.score.toFixed(1)}</b></span></div>
@@ -114,7 +115,7 @@ function ScoringPanel({ sessionId, current, spots, onApplied }: { sessionId: num
   const old = new Map(spots.map((s) => [s.topic_id, s]));
   return (
     <Section title="Scoring weights & thresholds" subtitle="All parameters are configurable. Re-scoring re-uses stored components, so no NLP re-run is needed.">
-      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+      <div className="rounded-lg border border-slate-200 bg-white p-4">
         {GROUPS.map((g) => (
           <div key={g.title} className="mb-4">
             <div className="mb-2 text-sm font-semibold">{g.title}</div>
@@ -122,9 +123,9 @@ function ScoringPanel({ sessionId, current, spots, onApplied }: { sessionId: num
           </div>
         ))}
         <div className="flex flex-wrap gap-2">
-          <Btn disabled={busy} onClick={() => run("preview")}>👁 Preview new scores</Btn>
-          <Btn variant="primary" disabled={busy} onClick={() => run("apply")}>✅ Apply to this analysis</Btn>
-          <Btn disabled={busy} onClick={() => run("default")}>💾 Save as default</Btn>
+          <Btn disabled={busy} onClick={() => run("preview")}><Eye size={15} />Preview new scores</Btn>
+          <Btn variant="primary" disabled={busy} onClick={() => run("apply")}><Check size={15} />Apply to this analysis</Btn>
+          <Btn disabled={busy} onClick={() => run("default")}><Save size={15} />Save as default</Btn>
         </div>
         {msg && (msg.ok ? <SuccessBox>{msg.text}</SuccessBox> : <ErrorBox>{msg.text}</ErrorBox>)}
         {preview && (

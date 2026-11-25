@@ -1,5 +1,6 @@
 "use client";
 
+import { Cog, Download, Headphones, Megaphone, Wrench, type LucideIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Gate } from "@/components/Gate";
 import { Badge, Btn, Card, ClassBadge, Expander, KpiRow, Note, PageHeader, PriorityBadge, Quote, SeverityBadge, Empty } from "@/components/ui";
@@ -7,7 +8,8 @@ import { CATEGORIES } from "@/lib/constants";
 import { downloadCsv } from "@/lib/derive";
 import type { Recommendation } from "@/lib/types";
 
-const ICONS: Record<string, string> = { Product: "🛠️", "Customer Support": "🎧", Operational: "⚙️", Communication: "📣" };
+const ICONS: Record<string, LucideIcon> = { Product: Wrench, "Customer Support": Headphones, Operational: Cog, Communication: Megaphone };
+const CatIcon = ({ c, size = 14 }: { c: string; size?: number }) => { const I = ICONS[c]; return I ? <I size={size} className="shrink-0" /> : null; };
 
 export default function Recommendations() {
   return (
@@ -30,17 +32,17 @@ function Content({ recs, llm }: { recs: Recommendation[]; llm: boolean }) {
     <>
       <Note>{llm ? "Wording of some recommendations was polished by the configured LLM. Scores, priorities and evidence are computed deterministically." : "Recommendations are generated deterministically from measured values (no LLM). Set LLM_PROVIDER=gemini and GEMINI_API_KEY on the backend to enable optional natural-language polishing."}</Note>
       <div className="my-3 flex flex-wrap items-center gap-x-6 gap-y-2">
-        <div className="flex flex-wrap items-center gap-1.5"><span className="text-sm font-semibold">Category</span>{CATEGORIES.map((c) => <button key={c} onClick={() => setCats(toggle(cats, c))} className={`rounded-full border px-3 py-1 text-xs font-semibold ${cats.includes(c) ? "border-indigo-600 bg-indigo-600 text-white" : "border-slate-300 bg-white text-slate-500"}`}>{ICONS[c]} {c}</button>)}</div>
-        <div className="flex flex-wrap items-center gap-1.5"><span className="text-sm font-semibold">Priority</span>{priorities.map((p) => <button key={p} onClick={() => setPri(toggle(activePri, p))} className={`rounded-full border px-3 py-1 text-xs font-semibold ${activePri.includes(p) ? "border-indigo-600 bg-indigo-600 text-white" : "border-slate-300 bg-white text-slate-500"}`}>{p}</button>)}</div>
-        <Btn onClick={() => downloadCsv("recommendations.csv", view.map((r) => ({ priority: r.priority, category: r.category, topic: r.topic_label, score: r.blind_spot_score, severity: r.severity, problem: r.problem, action: r.suggested_action, impact: r.expected_impact })))}>⬇ Export CSV</Btn>
+        <div className="flex flex-wrap items-center gap-1.5"><span className="text-sm font-semibold">Category</span>{CATEGORIES.map((c) => <button key={c} onClick={() => setCats(toggle(cats, c))} className={`rounded-md border px-2.5 py-1 text-xs font-medium ${cats.includes(c) ? "border-slate-300 bg-white text-slate-900 shadow-sm" : "border-slate-200 bg-slate-50 text-slate-400"}`}><span className="inline-flex items-center gap-1.5"><CatIcon c={c} />{c}</span></button>)}</div>
+        <div className="flex flex-wrap items-center gap-1.5"><span className="text-sm font-semibold">Priority</span>{priorities.map((p) => <button key={p} onClick={() => setPri(toggle(activePri, p))} className={`rounded-md border px-2.5 py-1 text-xs font-medium ${activePri.includes(p) ? "border-slate-300 bg-white text-slate-900 shadow-sm" : "border-slate-200 bg-slate-50 text-slate-400"}`}>{p}</button>)}</div>
+        <Btn onClick={() => downloadCsv("recommendations.csv", view.map((r) => ({ priority: r.priority, category: r.category, topic: r.topic_label, score: r.blind_spot_score, severity: r.severity, problem: r.problem, action: r.suggested_action, impact: r.expected_impact })))}><Download size={15} />Export CSV</Btn>
       </div>
-      <KpiRow items={[{ label: "Recommendations", value: view.length, sub: "after filters" }, ...CATEGORIES.map((c) => ({ label: c, value: view.filter((r) => r.category === c).length, sub: ICONS[c], accent: "#0EA5E9" }))]} />
+      <KpiRow items={[{ label: "Recommendations", value: view.length, sub: "after filters" }, ...CATEGORIES.map((c) => ({ label: c, value: view.filter((r) => r.category === c).length, sub: "recommendations" }))]} />
       {CATEGORIES.map((cat) => {
         const g = view.filter((r) => r.category === cat);
         if (!g.length) return null;
         return (
           <div key={cat} className="mt-6">
-            <h3 className="mb-3 text-xl font-bold">{ICONS[cat]} {cat} recommendations</h3>
+            <h3 className="mb-3 flex items-center gap-2 text-base font-semibold text-slate-900"><span className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600"><CatIcon c={cat} size={15} /></span>{cat} recommendations</h3>
             {g.map((r, i) => (
               <div key={i}>
                 <Card className="mb-2">

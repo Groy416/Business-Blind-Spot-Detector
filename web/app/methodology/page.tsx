@@ -68,7 +68,7 @@ export default function Methodology() {
       </Section>
 
       <Section title="Current default scoring configuration">
-        {cfg ? <pre className="overflow-x-auto rounded-xl bg-slate-900 p-4 text-xs text-slate-100">{JSON.stringify(cfg, null, 2)}</pre> : <Note warn>Configuration unavailable (backend not reachable).</Note>}
+        {cfg ? <pre className="overflow-x-auto rounded-lg bg-slate-900 p-4 text-xs text-slate-100">{JSON.stringify(cfg, null, 2)}</pre> : <Note warn>Configuration unavailable (backend not reachable).</Note>}
       </Section>
     </>
   );

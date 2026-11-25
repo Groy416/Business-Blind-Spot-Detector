@@ -1,5 +1,6 @@
 "use client";
 
+import { TrendingUp } from "lucide-react";
 import { Gate } from "@/components/Gate";
 import { ClassBadge, Card, KpiRow, Meter, Note, PageHeader, Section, SeverityBadge, Expander } from "@/components/ui";
 import { SentimentDonut, TopicBar } from "@/components/charts";
@@ -63,7 +64,7 @@ export default function Overview() {
 
               <Section title="Emerging issues" subtitle="Topics whose share of conversation is growing significantly AND is mostly negative">
                 {emerging.length === 0 ? <Note>{bundle.meta.trend_reason || "No topic shows a statistically significant increase in negative conversation."}</Note> : emerging.map((e) => (
-                  <Card key={e.topic_id} className="mb-3"><h4 className="font-semibold">📈 {e.topic_label} <span className="font-normal text-slate-500">· {e.status}</span></h4><p className="mt-1 text-sm text-slate-700">{e.reason}</p></Card>
+                  <Card key={e.topic_id} className="mb-3"><h4 className="flex items-center gap-1.5 font-semibold"><TrendingUp size={15} className="text-red-600" />{e.topic_label} <span className="font-normal text-slate-500">· {e.status}</span></h4><p className="mt-1 text-sm text-slate-700">{e.reason}</p></Card>
                 ))}
               </Section>
 
