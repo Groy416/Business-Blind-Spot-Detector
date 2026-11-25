@@ -1,5 +1,7 @@
 "use client";
 
+import { TopicName } from "@/components/TopicName";
+import { TrendingUp } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Gate } from "@/components/Gate";
 import { NegativeHeatmap, NegativeShareTrend, SentimentTrend, TopicLines, type TrendMetric } from "@/components/charts";
@@ -56,11 +58,11 @@ function Content({ bundle, view }: { bundle: Bundle; view: View }) {
           <Card>
             <div className="mb-1 text-sm font-semibold">Metric</div>
             {([["volume", "Statements"], ["share", "Share of period (%)"], ["neg_count", "Negative statements"]] as [TrendMetric, string][]).map(([k, l]) => (
-              <label key={k} className="mb-1 flex items-center gap-2 text-sm"><input type="radio" checked={metric === k} onChange={() => setMetric(k)} className="accent-indigo-600" />{l}</label>
+              <label key={k} className="mb-1 flex items-center gap-2 text-sm"><input type="radio" checked={metric === k} onChange={() => setMetric(k)} className="accent-slate-900" />{l}</label>
             ))}
             <div className="mb-1 mt-3 text-sm font-semibold">Topics</div>
             {[...visible].map((id) => (
-              <label key={id} className="mb-1 flex items-start gap-2 text-sm"><input type="checkbox" className="mt-0.5 accent-indigo-600" checked={ids.includes(id)} onChange={() => setChosen(ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id])} />{labels[id]}</label>
+              <label key={id} className="mb-1 flex items-start gap-2 text-sm"><input type="checkbox" className="mt-0.5 accent-slate-900" checked={ids.includes(id)} onChange={() => setChosen(ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id])} />{labels[id]}</label>
             ))}
           </Card>
         </div>
@@ -75,7 +77,7 @@ function Content({ bundle, view }: { bundle: Bundle; view: View }) {
 
       <Section title="Emerging issues & increasing complaints">
         {emerging.length === 0 ? <Note>No topic shows a statistically significant increase in negative conversation.</Note> : emerging.map((e) => (
-          <Card key={e.topic_id} className="mb-3"><h4 className="font-semibold">📈 {e.topic_label} · {e.status}</h4><p className="mt-1 text-sm text-slate-700">{e.reason}</p></Card>
+          <Card key={e.topic_id} className="mb-3"><h4 className="flex items-center gap-1.5 font-semibold"><TrendingUp size={15} className="text-red-600" />{e.topic_label} <span className="font-normal text-slate-500">· {e.status}</span></h4><p className="mt-1 text-sm text-slate-700">{e.reason}</p></Card>
         ))}
       </Section>
 
@@ -83,7 +85,7 @@ function Content({ bundle, view }: { bundle: Bundle; view: View }) {
         <Table head={["Topic", "Status", "Trend score", "Recent n", "History n", "Recent share %", "History share %", "Volume Δ%", "p-value", "Neg. Δ pts", "Sentiment slope/wk"]}>
           {[...summ].sort((a, b) => (b.trend_score ?? -1) - (a.trend_score ?? -1)).map((s) => (
             <tr key={s.topic_id}>
-              <Td className="font-medium">{s.topic_label}</Td><Td>{s.status}</Td><Td className="tabular-nums">{s.trend_score === null ? "—" : s.trend_score.toFixed(0)}</Td>
+              <Td><TopicName id={s.topic_id} name={s.topic_label} /></Td><Td>{s.status}</Td><Td className="tabular-nums">{s.trend_score === null ? "—" : s.trend_score.toFixed(0)}</Td>
               <Td>{s.recent_n}</Td><Td>{s.history_n}</Td><Td className="tabular-nums">{s.recent_share_pct.toFixed(1)}</Td><Td className="tabular-nums">{s.history_share_pct.toFixed(1)}</Td>
               <Td className="tabular-nums">{s.volume_change_pct === null ? "—" : s.volume_change_pct.toFixed(0)}</Td><Td className="tabular-nums">{s.volume_p_value.toFixed(3)}</Td>
               <Td className="tabular-nums">{s.negative_delta_pct.toFixed(1)}</Td><Td className="tabular-nums">{s.sentiment_slope_per_week === null ? "—" : s.sentiment_slope_per_week.toFixed(3)}</Td>

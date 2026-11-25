@@ -36,6 +36,8 @@ export interface Meta { embedding_backend: string; semantic_embeddings: boolean;
 export interface Bundle {
   session: { id: number; company_id: number; status: string; is_synthetic: boolean; started_at: string };
   overview: Overview; meta: Meta; customer: CustomerRow[]; mentions: Mention[]; topics: Topic[]; expectations: Expectation[]; company_themes: Theme[];
+  /** Added by the frontend (lib/naming.ts): the backend's original keyword labels, keyed by topic / theme id. */
+  keyword_labels?: Record<number, string>; theme_keyword_labels?: Record<number, string>;
   blind_spots: BlindSpot[]; recommendations: Recommendation[]; trend_series: SeriesRow[]; trend_overall: OverallRow[]; trend_summary: TrendSummary[]; trend_spikes: Spike[]; trend_emerging: Emerging[];
 }
 export interface ScoringConfig { w_frequency: number; w_unique_customers: number; w_sentiment: number; w_explicit_requests: number; w_coverage: number; w_similarity: number; w_volume_trend: number; w_negative_trend: number; neutral_trend: number; trend_floor: number; min_records_for_trend: number; min_importance: number; min_gap: number; min_score: number; low_coverage: number; min_emphasis_gap: number }

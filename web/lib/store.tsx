@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 import { api, ApiError, DEFAULT_API_URL, getApiUrl, resolveRegistry, setApiUrl as persistApiUrl, subscribeApiUrl } from "./api";
 import { applyFilters, EMPTY_FILTERS, type Filters, type View } from "./derive";
+import { humanizeBundle } from "./naming";
 import type { Bundle, Company, SessionSummary } from "./types";
 
 type ApiStatus = "checking" | "online" | "offline";
@@ -97,14 +98,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (sessionId === null) return;
     let live = true;
-    void attempt(() => api.bundle(sessionId)).then((r) => {
+    void attempt(async () => humanizeBundle(await api.bundle(sessionId))).then((r) => {
       if (live) setBundleState(r.ok ? { id: sessionId, data: r.data, error: null } : { id: sessionId, data: null, error: r.error });
     });
     return () => { live = false; };
   }, [sessionId]);
   const reloadBundle = useCallback(async () => {
     if (sessionId === null) return;
-    const r = await attempt(() => api.bundle(sessionId));
+    const r = await attempt(async () => humanizeBundle(await api.bundle(sessionId)));
     setBundleState(r.ok ? { id: sessionId, data: r.data, error: null } : { id: sessionId, data: null, error: r.error });
   }, [sessionId]);
 

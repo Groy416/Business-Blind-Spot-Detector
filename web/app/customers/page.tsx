@@ -1,5 +1,7 @@
 "use client";
 
+import { TopicName } from "@/components/TopicName";
+import { Download } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Gate } from "@/components/Gate";
 import { Badge, Bar, Btn, Empty, Expander, KpiRow, Note, PageHeader, Quote, Section, Table, Tabs, Td } from "@/components/ui";
@@ -85,8 +87,8 @@ function TopicsTab({ bundle, view }: { bundle: Bundle; view: View }) {
       <Section title="Discovered topics" subtitle={`Found automatically by ${bundle.meta.topic_backend.toUpperCase()} from your data. Click a row to read the underlying conversations.`}>
         <Table head={["Topic", "Statements", "Conversations", "Customers", "Avg sentiment", "% negative", "% positive", "Importance", "Volume change"]}>
           {topics.map((t) => (
-            <tr key={t.topic_id} onClick={() => setSel(t.topic_id === sel ? null : t.topic_id)} className={`cursor-pointer hover:bg-indigo-50/50 ${sel === t.topic_id ? "bg-indigo-50" : ""}`}>
-              <Td className="font-medium">{t.label}</Td><Td>{t.mentions}</Td><Td>{t.conversations}</Td><Td>{t.unique_customers}</Td>
+            <tr key={t.topic_id} onClick={() => setSel(t.topic_id === sel ? null : t.topic_id)} className={`cursor-pointer hover:bg-slate-50 ${sel === t.topic_id ? "bg-slate-100/70" : ""}`}>
+              <Td><TopicName id={t.topic_id} name={t.label} /></Td><Td>{t.mentions}</Td><Td>{t.conversations}</Td><Td>{t.unique_customers}</Td>
               <Td className="tabular-nums">{t.avg_sentiment.toFixed(2)}</Td><Td><Bar value={t.negative_pct} color={COLORS.neg} label={`${t.negative_pct.toFixed(0)}%`} /></Td>
               <Td className="tabular-nums">{t.positive_pct.toFixed(0)}%</Td><Td><Bar value={t.importance} /></Td>
               <Td className="tabular-nums">{t.volume_change_pct === null ? "new/NA" : `${t.volume_change_pct > 0 ? "+" : ""}${t.volume_change_pct.toFixed(0)}%`}</Td>
@@ -185,14 +187,14 @@ function ExplorerTab({ view, labels }: { view: View; labels: Record<number, stri
     <>
       <Section title="Review explorer" subtitle="Search and inspect individual conversations (respects the sidebar filters)" />
       <div className="mb-3 flex gap-3">
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search text, e.g. refund, chatbot, late …" className="w-full max-w-md rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-sm outline-none focus:border-indigo-500" />
-        <Btn onClick={csv}>⬇ Download CSV</Btn>
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search text, e.g. refund, chatbot, late …" className="w-full max-w-md rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm outline-none focus:border-indigo-500" />
+        <Btn onClick={csv}><Download size={15} />Download CSV</Btn>
       </div>
       <div className="mb-2 text-xs text-slate-500">{rows.length.toLocaleString()} conversations — click a row for aspect-level detail</div>
-      <div className="max-h-[420px] overflow-auto rounded-xl border border-slate-200">
+      <div className="max-h-[420px] overflow-auto rounded-lg border border-slate-200">
         <Table head={["Date", "Source", "Customer", "Sentiment", "Score", "Topic", "Text"]} className="border-0">
           {rows.slice(0, 300).map((r) => (
-            <tr key={r.record_id} onClick={() => setOpen(open === r.record_id ? null : r.record_id)} className={`cursor-pointer hover:bg-indigo-50/50 ${open === r.record_id ? "bg-indigo-50" : ""}`}>
+            <tr key={r.record_id} onClick={() => setOpen(open === r.record_id ? null : r.record_id)} className={`cursor-pointer hover:bg-slate-50 ${open === r.record_id ? "bg-slate-100/70" : ""}`}>
               <Td className="whitespace-nowrap">{r.date?.slice(0, 10) ?? "—"}</Td><Td>{r.source}</Td><Td>{r.customer_id}</Td><Td>{dot(r.label)}{r.label}</Td>
               <Td className="tabular-nums">{r.compound.toFixed(2)}</Td><Td>{r.topic_id !== null ? labels[r.topic_id] : "—"}</Td><Td className="min-w-72">{r.text_original}</Td>
             </tr>
